@@ -344,4 +344,206 @@ def main():
         print(f"  Standard deviation: {results['std']:.2e}")
         print(f"  95% CI: [{results['ci_95'][0]:.2e}, {results['ci_95'][1]:.2e}]")
         print(f"  Skewness: {results['skewness']:.3f}")
-        print(f"  Kurtosis: {results['k</antArtifact>
+        print(f"  Kurtosis: {results['kurtosis']:.3f}")
+    
+    # Create and save visualizations
+    fig = estimator.visualize_results(uncertainty_results)
+    plt.savefig('pi_estimation_results.png')
+    plt.close()
+
+    # Analyze convergence
+    convergence_results = estimator.analyze_convergence()
+    print("\nConvergence Analysis:")
+    print(f"Final RMSE: {convergence_results['final_rmse']:.2e}")
+    print(f"Convergence rate: {convergence_results['convergence_rate']:.2e}")
+    
+    logger.info("Pi estimation completed successfully")
+
+class ConvergenceAnalyzer:
+    """Analyzes convergence properties of the estimation"""
+    
+    def __init__(self, tolerance: float = 1e-15):
+        self.tolerance = tolerance
+        self.history: List[float] = []
+        
+    def update(self, value: float) -> None:
+        """Update convergence history"""
+        self.history.append(value)
+        
+    def analyze(self) -> Dict:
+        """Analyze convergence properties"""
+        if len(self.history) < 2:
+            return {'converged': False}
+            
+        differences = np.diff(self.history)
+        rmse = np.sqrt(np.mean(differences**2))
+        
+        # Calculate convergence rate using linear regression
+        if len(self.history) > 10:
+            x = np.arange(len(differences))
+            y = np.log(np.abs(differences) + 1e-20)  # Avoid log(0)
+            slope, _ = np.polyfit(x, y, 1)
+            rate = np.exp(slope)
+        else:
+            rate = np.nan
+            
+        return {
+            'converged': rmse < self.tolerance,
+            'final_rmse': rmse,
+            'convergence_rate': rate,
+            'iterations': len(self.history)
+        }
+
+class AdvancedQEDCorrections:
+    """Implements higher-order QED corrections"""
+    
+    def __init__(self, max_order: int = 5):
+        self.max_order = max_order
+        
+    @lru_cache(maxsize=1024)
+    def schwinger_coefficient(self, n: int) -> float:
+        """Calculate nth-order Schwinger coefficient"""
+        if n == 1:
+            return 0.5
+        elif n == 2:
+            return -0.328478965579193
+        elif n == 3:
+            return 1.181241456587183
+        elif n == 4:
+            return -1.4952
+        else:
+            # Estimate higher-order coefficients using asymptotic series
+            return (-1)**(n+1) * 4 * (np.pi**2)**(n-1) * zeta(2*n-3) / gamma(2*n-2)
+    
+    def vacuum_polarization_correction(self, alpha: float, pi_est: float, order: int) -> float:
+        """Calculate vacuum polarization correction to specified order"""
+        result = 0
+        x = alpha / pi_est
+        
+        for n in range(1, order + 1):
+            # Include logarithmic terms
+            log_term = np.log(1/x) if n > 1 else 1
+            result += self.vp_coefficient(n) * x**n * log_term
+            
+        return result
+    
+    @staticmethod
+    def vp_coefficient(n: int) -> float:
+        """Vacuum polarization coefficients"""
+        coefficients = {
+            1: 0.66666666666667,
+            2: 0.26666666666667,
+            3: 0.12777777777778,
+            4: 0.07407407407407
+        }
+        return coefficients.get(n, 0.0)
+    
+    def light_by_light_correction(self, alpha: float, pi_est: float, order: int) -> float:
+        """Calculate light-by-light scattering correction"""
+        result = 0
+        x = alpha / pi_est
+        
+        for n in range(3, order + 1):  # Starts at order α³
+            result += self.lbl_coefficient(n) * x**n
+            
+        return result
+    
+    @staticmethod
+    def lbl_coefficient(n: int) -> float:
+        """Light-by-light scattering coefficients"""
+        coefficients = {
+            3: 0.0795775,
+            4: 0.358474,
+            5: 1.23666
+        }
+        return coefficients.get(n, 0.0)
+
+class StatisticalAnalyzer:
+    """Advanced statistical analysis of results"""
+    
+    def __init__(self, confidence_level: float = 0.95):
+        self.confidence_level = confidence_level
+        
+    def analyze_distribution(self, data: np.ndarray) -> Dict:
+        """Perform comprehensive statistical analysis"""
+        mean = np.mean(data)
+        std = np.std(data)
+        
+        # Calculate confidence intervals
+        ci = norm.interval(self.confidence_level, loc=mean, scale=std)
+        
+        # Perform normality tests
+        _, shapiro_p = stats.shapiro(data)
+        _, anderson_stat, anderson_crit = stats.anderson(data)
+        
+        # Calculate higher moments
+        skewness = stats.skew(data)
+        kurtosis = stats.kurtosis(data)
+        
+        return {
+            'mean': mean,
+            'std': std,
+            'confidence_interval': ci,
+            'normality_tests': {
+                'shapiro_p': shapiro_p,
+                'anderson_stat': anderson_stat,
+                'anderson_critical_values': anderson_crit
+            },
+            'skewness': skewness,
+            'kurtosis': kurtosis,
+            'median': np.median(data),
+            'mad': stats.median_abs_deviation(data),
+            'quantiles': np.percentile(data, [25, 75])
+        }
+    
+    def compute_error_estimates(self, true_value: float, estimates: np.ndarray) -> Dict:
+        """Compute various error metrics"""
+        errors = estimates - true_value
+        
+        return {
+            'rmse': np.sqrt(np.mean(errors**2)),
+            'mae': np.mean(np.abs(errors)),
+            'mape': np.mean(np.abs(errors/true_value)) * 100,
+            'bias': np.mean(errors),
+            'relative_bias': np.mean(errors/true_value) * 100
+        }
+
+class PiEstimator:  # Enhanced version
+    def __init__(self):
+        super().__init__()
+        self.convergence_analyzer = ConvergenceAnalyzer()
+        self.statistical_analyzer = StatisticalAnalyzer()
+        self.qed_corrections = AdvancedQEDCorrections()
+        
+    def analyze_convergence(self) -> Dict:
+        """Analyze convergence properties of the estimation"""
+        return self.convergence_analyzer.analyze()
+    
+    def estimate_with_bootstrap(self, n_bootstrap: int = 1000) -> Dict:
+        """Estimate pi using bootstrap resampling"""
+        results = []
+        
+        for _ in range(n_bootstrap):
+            # Resample constants within their uncertainties
+            temp_constants = self.resample_constants()
+            
+            # Perform estimation with resampled constants
+            pi_est, _ = self.optimize_pi(constants=temp_constants)
+            results.append(pi_est)
+            
+        return self.statistical_analyzer.analyze_distribution(np.array(results))
+    
+    def resample_constants(self) -> QuantumConstants:
+        """Resample physical constants within their uncertainties"""
+        resampled = QuantumConstants()
+        
+        for attr_name in dir(self.constants):
+            if isinstance(getattr(self.constants, attr_name), ufloat):
+                original = getattr(self.constants, attr_name)
+                resampled_value = np.random.normal(original.n, original.s)
+                setattr(resampled, attr_name, ufloat(resampled_value, original.s))
+        
+        return resampled
+
+if __name__ == "__main__":
+    main()
