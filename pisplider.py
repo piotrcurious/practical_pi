@@ -31,32 +31,24 @@ class QuantumPiCalculator:
         
     def quantum_circle_method(self, terms=100):
         """
-        Calculate π using quantum mechanical circle method.
-        Uses algebraic geometry to construct circular relations.
+        Calculate π using the Leibniz series.
         """
-        x, y = Symbol('x'), Symbol('y')
-        circle = Circle(Point(0, 0), 1)
-        
-        # Quantum phase accumulation series
+        # Gregory-Leibniz series
         phase_sum = Decimal('0')
         for n in range(terms):
-            coefficient = Decimal('1') / (2 * n + 1)
-            phase_sum += coefficient * self.quantum_phase_term(n)
+            phase_sum += self.quantum_phase_term(n)
         
         return 4 * phase_sum
         
     def quantum_phase_term(self, n):
-        """Calculate quantum phase term using Planck-scale physics."""
-        l_p = self.planck_length()
-        return mpmath.power(-1, n) / (2*n + 1)
+        """Calculate nth term of the Leibniz series."""
+        return Decimal(str(mpmath.power(-1, n))) / Decimal(str(2*n + 1))
         
     def ramanujan_quantum_series(self, terms=10):
         """
-        Quantum-modified Ramanujan series for π.
-        Incorporates quantum corrections at Planck scale.
+        Ramanujan series for π.
         """
         sum_value = Decimal('0')
-        quantum_factor = self.planck_length() / Decimal('1e-35')  # Normalization
         
         for k in range(terms):
             num = mpmath.factorial(4*k) * (1103 + 26390*k)
@@ -66,14 +58,11 @@ class QuantumPiCalculator:
         constant = Decimal('2') * Decimal(str(mpmath.sqrt(2))) / Decimal('9801')
         pi_approx = Decimal('1') / (constant * sum_value)
         
-        # Apply quantum corrections
-        pi_approx *= (1 + quantum_factor)
         return pi_approx
         
     def chudnovsky_quantum_algorithm(self, terms=20):
         """
-        Quantum-enhanced Chudnovsky algorithm.
-        Includes corrections from quantum geometry at Planck scale.
+        Chudnovsky algorithm for π.
         """
         C = Decimal('426880') * Decimal(str(mpmath.sqrt(10005)))
         L = Decimal('13591409')
@@ -90,9 +79,7 @@ class QuantumPiCalculator:
             K += Decimal('12')
             
         pi_approx = C / S
-        # Apply quantum corrections
-        quantum_factor = self.planck_length() / Decimal('1e-35')
-        return pi_approx * (1 + quantum_factor)
+        return pi_approx
         
     def calculate_pi(self, digits=1000, method='all'):
         """

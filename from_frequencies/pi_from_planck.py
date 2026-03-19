@@ -2,13 +2,15 @@ import numpy as np
 from scipy.constants import h, c, G
 
 # -------------------------------------------------------------------
-# CODATA‑2018 measured Planck length (independent of π)
+# CODATA‑2018 measured Planck length.
+# NOTE: In practice, the Planck length is defined using π: l_p = sqrt(hbar * G / c^3)
+# where hbar = h / (2 * π). Thus, using it to 'infer' π is circular.
 PLANCK_LENGTH_MEASURED = 1.616255e-35  # meters
 # -------------------------------------------------------------------
 
 def infer_pi() -> float:
     """
-    Infer π from the measured Planck length using
+    Infer π from the Planck length using the relation:
         l_P^2 = h G / (2 π c^3)
     ⇒  π = h G / (2 l_P^2 c^3)
     """
