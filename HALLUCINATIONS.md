@@ -28,6 +28,11 @@
 ### `pi_compton.py` & `pi_compton2.py`
 - **Pure Circularity**: Uses `PLANCK_LENGTH` to "infer" $\pi$, but `PLANCK_LENGTH` is defined in the same script using `np.pi`.
 
+### `empirical_pi.py` (The Fixed Approach)
+- This script uses established physical laws to infer $\pi$.
+- It handles the SI unit circularity by using the most recent CODATA values and providing a discussion on why these derivations act as "consistency checks" for our system of units rather than pure "mathematical derivations from first principles."
+- It implements correct QED and thermodynamic formulas.
+
 ### `pinoG_UHD_fix1.py` & `pinoG_UHD_fix2.py`
 - **Pseudo-scientific QED**: These files contain highly sophisticated-looking QED and relativistic corrections (`_fourth_order_vertex`, `RelativisticQED`, `SpecializedQED`).
 - While some coefficients (like Schwinger's 0.5) are real, many others are hallucinated or applied in nonsensical ways to "derive" $\pi$ from $\alpha$.

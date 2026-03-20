@@ -39,4 +39,11 @@ Starting from basic quantum mechanics:
 
 This derivation shows how π naturally emerges from quantum mechanics and gravity at the Planck scale. It's a beautiful example of how mathematical constants are woven into the fabric of physical reality.
 
+## Empirical π Inference
+A new script, `empirical_pi.py`, provides scientifically grounded methods for inferring π from state-of-the-art measured physical constants:
+1. **Stefan-Boltzmann Law**: Deducing π from the relationship between blackbody radiance, Boltzmann's constant, and Planck's constant.
+2. **Quantum Electrodynamics (QED)**: Using the anomalous magnetic moment of the electron ($a_e$) and the fine-structure constant ($\alpha$) to infer π via the QED expansion.
+
+These methods respect CODATA 2022 values and explicitly handle measurement uncertainty and theoretical limitations.
+
 Would you like me to elaborate on any particular step or explore other quantum mechanical derivations of π?
