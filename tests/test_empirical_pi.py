@@ -19,5 +19,15 @@ class TestEmpiricalPi(unittest.TestCase):
         # 2nd order QED gives ~4-5 decimals of pi
         self.assertLess(diff, 1e-4)
 
+    def test_bohr_radius_inference(self):
+        pi_bohr, _ = self.inference.infer_from_bohr_radius()
+        # Atomic physics derivation should be very precise
+        self.assertAlmostEqual(float(pi_bohr), float(mpmath.pi), places=10)
+
+    def test_proton_gyromagnetic_ratio_inference(self):
+        pi_gamma, _ = self.inference.infer_from_proton_gyromagnetic_ratio()
+        # Nuclear physics derivation should be very precise
+        self.assertAlmostEqual(float(pi_gamma), float(mpmath.pi), places=10)
+
 if __name__ == '__main__':
     unittest.main()
