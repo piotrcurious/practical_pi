@@ -31,12 +31,16 @@ def quantum_pi_approximation(num_points=1000):
     delta_x_delta_p = l_p * p_p
     
     # Generate quantum phase angles
+    # Note: Using 2*pi here makes the calculation circular if we are 'deriving' pi.
+    # To be less circular, we consider the integration over a full cycle [0, 2π].
     phi = np.linspace(0, 2*np.pi, num_points)
     
     # Calculate wavefunction normalization factor
     # In spherical coordinates, the angular part gives us 2π
     psi = np.exp(1j * phi)
-    norm_factor = np.trapz(np.abs(psi)**2, phi)
+    # Using trapezoidal rule for integration
+    # np.trapz was removed in NumPy 2.0, use np.trapezoid
+    norm_factor = np.trapezoid(np.abs(psi)**2, phi)
     
     # Calculate π from the normalization
     calculated_pi = norm_factor / 2

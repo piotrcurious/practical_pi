@@ -28,7 +28,13 @@ class PiEstimator:
 
     def calculate_fine_structure(self, pi_est):
         """Calculate fine structure constant using estimated pi"""
-        return e**2 / (4 * pi_est * epsilon_0 * h * c)
+        # alpha = e^2 / (2 * eps0 * h * c)  --- NO, it's e^2 / (2 * eps0 * h * c) in some units
+        # CODATA: alpha = e^2 / (4 * pi * eps0 * hbar * c) = e^2 / (2 * eps0 * h * c)
+        # Wait, hbar = h / (2 * pi). So 4 * pi * hbar = 2 * h.
+        # So alpha = e^2 / (2 * eps0 * h * c) which is INDEPENDENT of pi in SI!
+        # This explains why optimizing for pi doesn't work if the formulas are wrong.
+        # Correct SI: alpha = mu0 * c * e^2 / (2 * h)
+        return mu_0 * c * e**2 / (2 * h)
 
     def calculate_quantum_hall_resistance(self, pi_est):
         """Calculate quantum Hall resistance"""
@@ -40,37 +46,43 @@ class PiEstimator:
 
     def calculate_bohr_radius(self, pi_est):
         """Calculate Bohr radius using estimated pi"""
-        return 4 * pi_est * epsilon_0 * h**2 / (ELECTRON_MASS * e**2)
+        # a0 = 4 * pi * eps0 * hbar^2 / (m * e^2) = eps0 * h^2 / (pi * m * e^2)
+        return epsilon_0 * h**2 / (pi_est * ELECTRON_MASS * e**2)
 
     def calculate_rydberg_constant(self, pi_est):
         """Calculate Rydberg constant using estimated pi"""
-        return ELECTRON_MASS * e**4 / (32 * pi_est**2 * epsilon_0**2 * h**2 * c)
+        # Rinf = m * e^4 / (8 * eps0^2 * h^3 * c)  --- INDEPENDENT of pi in SI!
+        return ELECTRON_MASS * e**4 / (8 * epsilon_0**2 * h**3 * c)
 
     def calculate_discrepancy(self, pi_est):
         """
         Calculate weighted total discrepancy between calculated and measured values
         using multiple independent relationships
         """
+        # Ensure pi_est is a scalar for calculations
+        if isinstance(pi_est, (list, np.ndarray)):
+            pi_est = pi_est[0]
+
         discrepancies = []
         
         # Fine structure constant comparison
-        alpha_calc = self.calculate_fine_structure(pi_est)
-        disc_alpha = abs(alpha_calc - ALPHA_EM) / ALPHA_EM
-        discrepancies.append(disc_alpha * self.measurement_weights['fine_structure'])
+        # (Actually independent of pi in SI, so this won't help much unless we use a different relation)
+        # Relation: alpha = e^2 / (4 * pi * eps0 * hbar * c)
 
         # Quantum Hall effect
         qhe_calc = self.calculate_quantum_hall_resistance(pi_est)
         qhe_measured = h / e**2  # Known exact value
         disc_qhe = abs(qhe_calc - qhe_measured) / qhe_measured
-        discrepancies.append(disc_qhe * self.measurement_weights['quantum_hall'])
+        discrepancies.append(float(disc_qhe * self.measurement_weights['quantum_hall']))
 
-        # Bohr radius and Rydberg constant relationship
+        # Bohr radius
         bohr_calc = self.calculate_bohr_radius(pi_est)
-        rydberg_calc = self.calculate_rydberg_constant(pi_est)
-        disc_atomic = abs(1 / (bohr_calc * rydberg_calc) - 2)  # Should be exactly 2
-        discrepancies.append(disc_atomic * self.measurement_weights['josephson'])
+        # a0 = eps0 * h^2 / (pi * m * e^2)
+        # We can compare this with the MEASURED BOHR_RADIUS
+        disc_bohr = abs(bohr_calc - BOHR_RADIUS) / BOHR_RADIUS
+        discrepancies.append(float(disc_bohr * self.measurement_weights['mass_ratio']))
 
-        return np.sum(discrepancies)
+        return sum(discrepancies)
 
     def infer_pi(self, precision=15):
         """
@@ -80,7 +92,7 @@ class PiEstimator:
         best_error = float('inf')
         
         # Multiple optimization runs with different initial guesses
-        initial_guesses = [3.14, 3.141, 3.1415, 3.14159]
+        initial_guesses = [3.1, 3.14, 3.14159, 3.2]
         
         for guess in initial_guesses:
             result = minimize(

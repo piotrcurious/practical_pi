@@ -37,10 +37,10 @@ class PhysicalConstants:
     def _calculate_quantum_corrections(self):
         """Calculate quantum corrections for fundamental constants."""
         # Quantum vacuum fluctuation corrections
-        vacuum_energy = mpmath.sqrt(self.hbar * self.c / (2 * mpmath.pi))
+        # vacuum_energy = mpmath.sqrt(self.hbar * self.c / (2 * mpmath.pi))
         
-        # Loop quantum gravity corrections (approximate)
-        self.G_corrected = self.G * (1 + mpmath.mpf('1e-40'))
+        # In a real physical derivation, we would avoid using pi to define G_corrected
+        self.G_corrected = self.G
         
         # Fine structure constant (α) with full precision
         self.alpha = mpmath.mpf(
@@ -54,9 +54,7 @@ class PhysicalConstants:
         
     def _calculate_planck_length(self) -> mpmath.mpf:
         """Calculate Planck length with quantum corrections."""
-        basic_length = mpmath.sqrt(self.hbar * self.G_corrected / self.c**3)
-        # Apply loop quantum gravity correction
-        return basic_length * (1 + self.alpha * mpmath.mpf('1e-40'))
+        return mpmath.sqrt(self.hbar * self.G_corrected / self.c**3)
         
     def _calculate_planck_mass(self) -> mpmath.mpf:
         """Calculate Planck mass with quantum corrections."""
@@ -86,21 +84,19 @@ class UltraPreciseQuantumPiCalculator:
         
     def _quantum_geometric_series(self, terms: int) -> mpmath.mpf:
         """
-        Calculate π using quantum-geometric series with enhanced precision.
+        Calculate π using the Gregory-Leibniz series.
+        Note: This is a mathematical series, often presented as 'quantum-geometric'
+        in AI hallucinations when it includes irrelevant physical constants.
         """
         def series_term(k: int) -> mpmath.mpf:
-            # Enhanced quantum correction factor
-            qf = mpmath.power(self.constants.alpha, k) / mpmath.factorial(k)
-            # Geometric component with Planck-scale corrections
-            geo = mpmath.power(-1, k) * mpmath.power(4, k) * qf
-            return geo / (2*k + 1)
+            return mpmath.power(-1, k) / (2*k + 1)
             
         sum_value = mpmath.mpf('0')
         with mpmath.workprec(self.working_precision):
             for k in range(terms):
                 sum_value += series_term(k)
                 
-        return sum_value
+        return 4 * sum_value
         
     def _quantum_chudnovsky(self, terms: int) -> mpmath.mpf:
         """
@@ -129,10 +125,9 @@ class UltraPreciseQuantumPiCalculator:
         
     def _quantum_ramanujan(self, terms: int) -> mpmath.mpf:
         """
-        Quantum-enhanced Ramanujan series with Planck-scale corrections.
+        Ramanujan's series for 1/π.
         """
         sum_value = mpmath.mpf('0')
-        quantum_factor = self.constants.planck_length / mpmath.mpf('1e-35')
         
         for k in range(terms):
             num = mpmath.factorial(4*k) * (1103 + 26390*k)
@@ -142,8 +137,7 @@ class UltraPreciseQuantumPiCalculator:
         constant = 2 * mpmath.sqrt(2) / 9801
         pi_approx = 1 / (constant * sum_value)
         
-        # Apply quantum corrections with enhanced precision
-        return pi_approx * (1 + quantum_factor)
+        return pi_approx
         
     def calculate_pi(self, method: str = 'combined', terms: int = 100) -> Dict[str, mpmath.mpf]:
         """
@@ -188,9 +182,9 @@ class UltraPreciseQuantumPiCalculator:
             
     def estimate_uncertainty(self, value: mpmath.mpf) -> mpmath.mpf:
         """
-        Estimate uncertainty in calculated value based on quantum effects.
+        Estimate uncertainty in calculated value.
         """
-        return value * self.constants.planck_length / mpmath.mpf('1e-35')
+        return abs(value - mpmath.pi)
 
 def main():
     # Example usage with ultra-high precision
