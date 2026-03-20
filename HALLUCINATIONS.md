@@ -24,3 +24,19 @@
 ### `from_frequencies/pinoG.py`
 - Contains a bug in `calculate_discrepancy`: `np.sum(discrepancies)` fails because `discrepancies` contains `uncertainties` objects or inhomogeneous shapes.
 - Optimization for $\pi$ is limited by the precision of the constants used.
+
+### `pi_compton.py` & `pi_compton2.py`
+- **Pure Circularity**: Uses `PLANCK_LENGTH` to "infer" $\pi$, but `PLANCK_LENGTH` is defined in the same script using `np.pi`.
+
+### `pinoG_UHD_fix1.py` & `pinoG_UHD_fix2.py`
+- **Pseudo-scientific QED**: These files contain highly sophisticated-looking QED and relativistic corrections (`_fourth_order_vertex`, `RelativisticQED`, `SpecializedQED`).
+- While some coefficients (like Schwinger's 0.5) are real, many others are hallucinated or applied in nonsensical ways to "derive" $\pi$ from $\alpha$.
+- They include complex visualizations (Plotly dashboards, Feynman diagrams) to add a veneer of authority to what is essentially a random search for $\pi$ near its known value.
+- Many classes (like `LRUCache`) are used but not defined or imported, making the code non-functional.
+
+### `from_frequencies/gpt4o/2/pi_no_G.py`
+- **Nonsensical Formula**: `pi_inferred = (E * E_P) / (2 * hbar * c**2 * f)`.
+- Using $E = hf$ and $E_p = \sqrt{\hbar c^5 / G}$, this formula doesn't simplify to $\pi$. It's a made-up relationship.
+
+### `from_frequencies/gpt4o/2/G_from_pi/G_from_pi.py`
+- **Circular/Trivial**: Correctly calculates $\pi$ using Gauss-Legendre (pure math), then "infers" $G$ from Planck energy and length. This has nothing to do with deriving $\pi$ from physics.

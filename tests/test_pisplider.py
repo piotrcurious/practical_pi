@@ -13,19 +13,19 @@ class TestPisplider(unittest.TestCase):
         pi_calc = self.calculator.quantum_circle_method(terms=1000)
         diff = abs(mpmath.mpf(str(pi_calc)) - mpmath.pi)
         # 1000 terms gives ~3 decimals of accuracy
-        print(f"Quantum circle method diff: {diff}")
+        self.assertLess(diff, 1e-2)
 
     def test_ramanujan_quantum_series(self):
         # Like physical_pi, this should be accurate if not for the "correction"
         pi_calc = self.calculator.ramanujan_quantum_series(terms=5)
         diff = abs(mpmath.mpf(str(pi_calc)) - mpmath.pi)
-        print(f"Pisplider Ramanujan diff: {diff}")
+        self.assertLess(diff, 1e-30)
 
     def test_chudnovsky_quantum_algorithm(self):
         # Like physical_pi, this should be accurate if not for the "correction"
         pi_calc = self.calculator.chudnovsky_quantum_algorithm(terms=5)
         diff = abs(mpmath.mpf(str(pi_calc)) - mpmath.pi)
-        print(f"Pisplider Chudnovsky diff: {diff}")
+        self.assertLess(diff, 1e-70)
 
 if __name__ == '__main__':
     unittest.main()

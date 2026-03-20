@@ -3,6 +3,7 @@ from scipy.optimize import minimize
 from scipy.constants import h, c, G
 
 # Known physical constants
+# Note: Using PLANCK_LENGTH here with np.pi makes the derivation circular.
 PLANCK_LENGTH = np.sqrt(h * G / (2 * np.pi * c**3))  # meters
 ELECTRON_COMPTON_WAVELENGTH = 2.42631023867e-12  # meters
 ELECTRON_MASS = 9.1093837015e-31  # kg
@@ -22,11 +23,9 @@ def calculate_resonance_ratios(pi_array):
     electron_wavelength_calc = h_estimated / (ELECTRON_MASS * c)
     proton_wavelength_calc = h_estimated / (PROTON_MASS * c)
 
-    # Known measured mass ratio
-    measured_ratio = ELECTRON_MASS / PROTON_MASS
-    calculated_ratio = proton_wavelength_calc / electron_wavelength_calc
-
-    return abs(measured_ratio - calculated_ratio)
+    # The ratio λ_p / λ_e is independent of pi.
+    # To find pi, we compare with the measured wavelength.
+    return abs(electron_wavelength_calc - ELECTRON_COMPTON_WAVELENGTH) / ELECTRON_COMPTON_WAVELENGTH
 
 def infer_pi():
     """
